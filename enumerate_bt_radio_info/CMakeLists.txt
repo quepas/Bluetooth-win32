@@ -1,0 +1,2 @@
+add_executable(enumerate_bt_radio_info main.cpp)
+target_link_libraries(enumerate_bt_radio_info PRIVATE Bthprops)

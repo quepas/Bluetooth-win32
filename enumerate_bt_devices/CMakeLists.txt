@@ -1,0 +1,2 @@
+add_executable(enumerate_bt_devices main.cpp)
+target_link_libraries(enumerate_bt_devices PRIVATE Bthprops)
