@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include <bluetoothapis.h>
 #include <iostream>
-#include <format>
 #include <vector>
 
 std::wstring format_datetime(const SYSTEMTIME* system_time) {
@@ -22,8 +21,13 @@ bool enumerate_bt_devices(std::vector<BLUETOOTH_DEVICE_INFO>& device_collection)
     search_params.fReturnRemembered = TRUE;
     search_params.fReturnUnknown = TRUE;
     search_params.fIssueInquiry = TRUE;
-    // Device scanning time in seconds
-    search_params.cTimeoutMultiplier = 5;
+    // Device scanning time expressed as 1.28 seconds multiplied by the cTimeoutMultiplier
+    // From doc: https://learn.microsoft.com/en-us/windows/win32/api/bluetoothapis/ns-bluetoothapis-bluetooth_device_search_params
+    // "A value that indicates the time out for the inquiry, expressed in increments of 1.28 seconds.
+    //  For example, an inquiry of 12.8 seconds has a cTimeoutMultiplier value of 10.
+    //  The maximum value for this member is 48. When a value greater than 48 is used,
+    //  the calling function immediately fails and returns E_INVALIDARG."
+    search_params.cTimeoutMultiplier = 10;
     BLUETOOTH_DEVICE_INFO device_info;
     device_info.dwSize = sizeof(device_info);
 
@@ -49,6 +53,7 @@ int main() {
         std::cout << "--- Displaying information about device #" << idx + 1 << " ---" << std::endl;
         auto device_info = devices[idx];
         std::wcout << "\tDevice name     : " << device_info.szName << std::endl;
+        std::cout  << "\tAddress         : " << device_info.Address.ullLong << std::endl;
         // See Section 2.8 Class of Device in "Assigned Numbers" document from BT spec
         // https://btprodspecificationrefs.blob.core.windows.net/assigned-numbers/Assigned%20Number%20Types/Assigned%20Numbers.pdf
         std::cout  << "\tClass           : " << device_info.ulClassofDevice << std::endl;
