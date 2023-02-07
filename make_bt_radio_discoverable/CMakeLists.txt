@@ -1,0 +1,2 @@
+add_executable(make_bt_radio_discoverable main.cpp)
+target_link_libraries(make_bt_radio_discoverable PRIVATE Bthprops)
