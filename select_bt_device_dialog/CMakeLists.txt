@@ -1,0 +1,2 @@
+add_executable(select_bt_device_dialog main.cpp)
+target_link_libraries(select_bt_device_dialog PRIVATE Bthprops)
