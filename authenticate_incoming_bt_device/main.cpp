@@ -2,7 +2,6 @@
 #include <bluetoothapis.h>
 #include <chrono>
 #include <iostream>
-#include <vector>
 #include <thread>
 
 using namespace std::chrono_literals;
@@ -24,34 +23,34 @@ BOOL PfnAuthenticationCallbackEx(LPVOID pvParam, PBLUETOOTH_AUTHENTICATION_CALLB
     std::cout << "BT authentication requirements: " << pAuthCallbackParams->authenticationRequirements << std::endl;
     std::cout << "Numeric value: " << pAuthCallbackParams->Numeric_Value << std::endl;
     std::cout << "Passkey: " << pAuthCallbackParams->Passkey << std::endl;
-    std::wstring passkey = std::to_wstring(pAuthCallbackParams->Passkey);
-    std::wcout << "Converted passkey: " << passkey << "; size=" << passkey.size() << std::endl;
-//    BluetoothAuthenticateDevice(NULL, NULL, &device_info, const_cast<PWSTR>(passkey.c_str()), passkey.size());
-//    std::cout << "Sending passkey status: "
-//              << BluetoothSendAuthenticationResponse(NULL, &device_info, passkey.c_str()) << std::endl;
     BLUETOOTH_AUTHENTICATE_RESPONSE response;
     response.bthAddressRemote = device_info.Address;
     response.authMethod = pAuthCallbackParams->authenticationMethod;
-    BLUETOOTH_PASSKEY_INFO bt_passkey = {pAuthCallbackParams->Passkey};
-    response.passkeyInfo = bt_passkey;
+    // This is crucial ! If this parameter is not set, the authentication doesn't succeed
+    response.negativeResponse = 0;
+    // TODO: Handle other authentication methods
+    if (response.authMethod == BLUETOOTH_AUTHENTICATION_METHOD_NUMERIC_COMPARISON) {
+        BLUETOOTH_PASSKEY_INFO bt_passkey = {pAuthCallbackParams->Passkey};
+        response.passkeyInfo = bt_passkey;
+    }
 
     std::cout << "Sending passkey status ex: "
-              << BluetoothSendAuthenticationResponseEx(NULL, &response) << std::endl;
+              << BluetoothSendAuthenticationResponseEx(nullptr, &response) << std::endl;
     return TRUE;
 }
 
 int main() {
-    std::cout << "\tIs any radio connectable?: " << BluetoothIsConnectable(NULL) << std::endl;
-    std::cout << "\tIs any radio discoverable?: " << BluetoothIsDiscoverable(NULL) << std::endl;
-    std::cout << "\tEnable incoming connections on all radios: " << BluetoothEnableIncomingConnections(NULL, TRUE)
+    std::cout << "Is any radio connectable?                : " << BluetoothIsConnectable(nullptr) << std::endl;
+    std::cout << "Is any radio discoverable?               : " << BluetoothIsDiscoverable(nullptr) << std::endl;
+    std::cout << "Enable incoming connections on all radios: " << BluetoothEnableIncomingConnections(nullptr, TRUE)
               << std::endl;
-    std::cout << "\tEnable discovery of all radios" << BluetoothEnableDiscovery(NULL, TRUE) << std::endl;
+    std::cout << "Enable discovery of all radios           : " << BluetoothEnableDiscovery(nullptr, TRUE) << std::endl;
     // Checking again what has changed
-    std::cout << "\tIs any radio connectable?: " << BluetoothIsConnectable(NULL) << std::endl;
-    std::cout << "\tIs any radio discoverable?: " << BluetoothIsDiscoverable(NULL) << std::endl;
+    std::cout << "Is any radio connectable?                : " << BluetoothIsConnectable(nullptr) << std::endl;
+    std::cout << "Is any radio discoverable?               : " << BluetoothIsDiscoverable(nullptr) << std::endl;
 
     HBLUETOOTH_AUTHENTICATION_REGISTRATION auth_registration_handle;
-    BluetoothRegisterForAuthenticationEx(NULL, &auth_registration_handle, PfnAuthenticationCallbackEx, NULL);
+    BluetoothRegisterForAuthenticationEx(nullptr, &auth_registration_handle, PfnAuthenticationCallbackEx, nullptr);
 
     std::thread t1([]() {
         auto sleep_time = 30s;
