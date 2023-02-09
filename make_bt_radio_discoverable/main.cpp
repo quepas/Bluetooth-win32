@@ -46,7 +46,7 @@ int main() {
         std::cout << "\tIs discoverable?: " << BluetoothIsDiscoverable(radio_handle) << std::endl;
         std::thread t1([]() {
             auto sleep_time = 30s;
-            std::cout << "Allowing for the BT radio to found by sleeping for: " << sleep_time << std::endl;;
+            std::cout << "Allowing for the BT radio to be found by sleeping for: " << sleep_time << std::endl;;
             std::this_thread::sleep_for(sleep_time);
         });
         t1.join();

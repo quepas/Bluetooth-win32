@@ -1,0 +1,2 @@
+add_executable(authenticate_incoming_bt_device main.cpp)
+target_link_libraries(authenticate_incoming_bt_device PRIVATE Bthprops)
